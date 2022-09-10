@@ -1,4 +1,4 @@
-import { model, Schema } from 'mongoose';
+import { model, Schema } from "mongoose";
 
 interface IUser {
   name: String;
@@ -9,20 +9,32 @@ interface IUser {
 const userSchema = new Schema<IUser>({
   name: {
     type: String,
-    required: true,
-    minlength: 2,
-    maxlength: 30,
+    required: [true, "Обязательное поле."],
+    minlength: [
+      2,
+      "Минимальное количество символов 2, текущее количество {VALUE}.",
+    ],
+    maxlength: [
+      30,
+      "Максимальное количество символов 30, текущее количество {VALUE}.",
+    ],
   },
   about: {
     type: String,
-    required: true,
-    minlength: 2,
-    maxlength: 200,
+    required: [true, "Обязательное поле."],
+    minlength: [
+      2,
+      "Минимальное количество символов 2, текущее количество {VALUE}.",
+    ],
+    maxlength: [
+      200,
+      "Максимальное количество символов 200, текущее количество {VALUE}.",
+    ],
   },
   avatar: {
     type: String,
-    required: true,
+    required: [true, "Обязательное поле."],
   },
 });
 
-export default model<IUser>('user', userSchema);
+export default model<IUser>("user", userSchema);
