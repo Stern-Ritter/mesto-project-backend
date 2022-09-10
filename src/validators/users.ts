@@ -1,13 +1,13 @@
-import { celebrate, Joi, Segments } from "celebrate";
-import { validateId } from "./utils";
+import { celebrate, Joi, Segments } from 'celebrate';
+import { validateId } from './utils';
 
-const validateUserId = validateId("Передан некорректный _id пользователя.");
+const validateUserId = validateId('Передан некорректный _id пользователя.');
 
 export const getUserByIdValidateRequest = celebrate({
   [Segments.PARAMS]: Joi.object()
     .keys({
       userId: Joi.string()
-        .custom(validateUserId, "user id validation")
+        .custom(validateUserId, 'user id validation')
         .required(),
     })
     .unknown(true),
