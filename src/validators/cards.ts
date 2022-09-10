@@ -1,4 +1,7 @@
-import { celebrate, Joi, Segments } from 'celebrate';
+import { celebrate, Joi, Segments } from "celebrate";
+import { validateId } from "./utils";
+
+const validateCardId = validateId("Передан некорректный _id карточки.");
 
 export const createCardValidateRequest = celebrate({
   [Segments.BODY]: Joi.object()
@@ -9,26 +12,12 @@ export const createCardValidateRequest = celebrate({
     .unknown(true),
 });
 
-export const deleteCardByIdValidateRequest = celebrate({
+export const validateCardIdParam = celebrate({
   [Segments.PARAMS]: Joi.object()
     .keys({
-      cardId: Joi.string().alphanum().required(),
-    })
-    .unknown(true),
-});
-
-export const likeCardValidateRequest = celebrate({
-  [Segments.PARAMS]: Joi.object()
-    .keys({
-      cardId: Joi.string().alphanum().required(),
-    })
-    .unknown(true),
-});
-
-export const dislikeCardValidateRequest = celebrate({
-  [Segments.PARAMS]: Joi.object()
-    .keys({
-      cardId: Joi.string().alphanum().required(),
+      cardId: Joi.string()
+        .custom(validateCardId, "card id validation")
+        .required(),
     })
     .unknown(true),
 });
