@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import NotFoundError from '../errors/not-found-err';
 import Card from '../models/card';
+import NotFoundError from '../errors/not-found-err';
+import { handleSchemaErrors } from './utils';
 
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
   Card.find({})
@@ -16,7 +17,7 @@ export const createCard = (req: Request, res: Response, next: NextFunction) => {
   Card.create({ name, link, owner: _id })
     .then((card) => card.populate('owner'))
     .then((card) => res.send({ data: card }))
-    .catch(next);
+    .catch((err) => handleSchemaErrors(err, next));
 };
 
 export const deleteCardById = (
@@ -35,14 +36,18 @@ export const deleteCardById = (
         throw new NotFoundError('Карточка с указанным _id не найдена.');
       }
     })
-    .catch(next);
+    .catch((err) => handleSchemaErrors(err, next));
 };
 
 export const likeCard = (req: Request, res: Response, next: NextFunction) => {
   const { cardId } = req.params;
   const { _id } = req.user;
 
-  Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id } }, { new: true })
+  Card.findByIdAndUpdate(
+    cardId,
+    { $addToSet: { likes: _id } },
+    { new: true, runValidators: true },
+  )
     .populate('owner')
     .then((card) => {
       if (card) {
@@ -51,7 +56,7 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) => {
         throw new NotFoundError('Карточка с указанным _id не найдена.');
       }
     })
-    .catch(next);
+    .catch((err) => handleSchemaErrors(err, next));
 };
 
 export const dislikeCard = (
@@ -62,7 +67,11 @@ export const dislikeCard = (
   const { cardId } = req.params;
   const { _id } = req.user;
 
-  Card.findByIdAndUpdate(cardId, { $pull: { likes: _id } }, { new: true })
+  Card.findByIdAndUpdate(
+    cardId,
+    { $pull: { likes: _id } },
+    { new: true, runValidators: true },
+  )
     .populate('owner')
     .then((card) => {
       if (card) {
@@ -71,5 +80,5 @@ export const dislikeCard = (
         throw new NotFoundError('Карточка с указанным _id не найдена.');
       }
     })
-    .catch(next);
+    .catch((err) => handleSchemaErrors(err, next));
 };

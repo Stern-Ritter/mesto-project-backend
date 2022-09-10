@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import NotFoundError from '../errors/not-found-err';
 import User from '../models/user';
+import NotFoundError from '../errors/not-found-err';
+import { handleSchemaErrors } from './utils';
 
 export const getUsers = (req: Request, res: Response, next: NextFunction) => {
   User.find({})
@@ -23,7 +24,7 @@ export const getUserById = (
         throw new NotFoundError('Пользователь по указанному _id не найден.');
       }
     })
-    .catch(next);
+    .catch((err) => handleSchemaErrors(err, next));
 };
 
 export const createUser = (req: Request, res: Response, next: NextFunction) => {
@@ -31,14 +32,18 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
 
   User.create({ name, about, avatar })
     .then((user) => res.send({ data: user }))
-    .catch(next);
+    .catch((err) => handleSchemaErrors(err, next));
 };
 
 export const updateUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about } = req.body;
   const { _id } = req.user;
 
-  User.findByIdAndUpdate(_id, { name, about }, { new: true })
+  User.findByIdAndUpdate(
+    _id,
+    { name, about },
+    { new: true, runValidators: true },
+  )
     .then((user) => {
       if (user) {
         res.send({ data: user });
@@ -46,7 +51,7 @@ export const updateUser = (req: Request, res: Response, next: NextFunction) => {
         throw new NotFoundError('Пользователь по указанному _id не найден.');
       }
     })
-    .catch(next);
+    .catch((err) => handleSchemaErrors(err, next));
 };
 
 export const updateUserAvatar = (
@@ -57,7 +62,7 @@ export const updateUserAvatar = (
   const { avatar } = req.body;
   const { _id } = req.user;
 
-  User.findByIdAndUpdate(_id, { avatar }, { new: true })
+  User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
     .then((user) => {
       if (user) {
         res.send({ data: user });
@@ -65,5 +70,5 @@ export const updateUserAvatar = (
         throw new NotFoundError('Пользователь по указанному _id не найден.');
       }
     })
-    .catch(next);
+    .catch((err) => handleSchemaErrors(err, next));
 };
