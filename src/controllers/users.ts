@@ -36,7 +36,6 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
 
 export const updateUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about } = req.body;
-  // @ts-ignore
   const { _id } = req.user;
 
   User.findByIdAndUpdate(_id, { name, about }, { new: true })
@@ -56,7 +55,6 @@ export const updateUserAvatar = (
   next: NextFunction,
 ) => {
   const { avatar } = req.body;
-  // @ts-ignore
   const { _id } = req.user;
 
   User.findByIdAndUpdate(_id, { avatar }, { new: true })

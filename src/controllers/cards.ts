@@ -11,7 +11,6 @@ export const getCards = (req: Request, res: Response, next: NextFunction) => {
 
 export const createCard = (req: Request, res: Response, next: NextFunction) => {
   const { name, link } = req.body;
-  // @ts-ignore
   const { _id } = req.user;
 
   Card.create({ name, link, owner: _id })
@@ -41,7 +40,6 @@ export const deleteCardById = (
 
 export const likeCard = (req: Request, res: Response, next: NextFunction) => {
   const { cardId } = req.params;
-  // @ts-ignore
   const { _id } = req.user;
 
   Card.findByIdAndUpdate(cardId, { $addToSet: { likes: _id } }, { new: true })
@@ -62,7 +60,6 @@ export const dislikeCard = (
   next: NextFunction,
 ) => {
   const { cardId } = req.params;
-  // @ts-ignore
   const { _id } = req.user;
 
   Card.findByIdAndUpdate(cardId, { $pull: { likes: _id } }, { new: true })

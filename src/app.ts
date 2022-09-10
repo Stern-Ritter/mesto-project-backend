@@ -17,7 +17,6 @@ app.use(express.urlencoded({ extended: true }));
 mongoose.connect(DATABASE_URL);
 
 app.use((req, res, next) => {
-  // @ts-ignore
   req.user = {
     _id: '631a5d90c1f5220b1db109ca',
   };
