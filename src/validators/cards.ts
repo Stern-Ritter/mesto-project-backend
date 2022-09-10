@@ -1,7 +1,7 @@
 import { celebrate, Joi, Segments } from 'celebrate';
 import { validateId } from './utils';
 
-const validateCardId = validateId('Передан некорректный _id карточки.');
+const validateCardId = validateId('Некорректный формат _id карточки.');
 
 export const createCardValidateRequest = celebrate({
   [Segments.BODY]: Joi.object()
