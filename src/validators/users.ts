@@ -13,16 +13,6 @@ export const getUserByIdValidateRequest = celebrate({
     .unknown(true),
 });
 
-export const createUserValidateRequest = celebrate({
-  [Segments.BODY]: Joi.object()
-    .keys({
-      name: Joi.string().required().min(2).max(30),
-      about: Joi.string().required().min(2).max(200),
-      avatar: Joi.string().uri().required(),
-    })
-    .unknown(true),
-});
-
 export const updateUserValidateRequest = celebrate({
   [Segments.BODY]: Joi.object()
     .keys({

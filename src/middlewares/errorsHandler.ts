@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
+import { ApplicationError } from '../types';
 
 const DEFAULT_ERROR_STATUS_CODE = 500;
 
 const errorsHandler = (
-  err: Error & { statusCode?: number },
+  err: ApplicationError,
   req: Request,
   res: Response,
   next: NextFunction,

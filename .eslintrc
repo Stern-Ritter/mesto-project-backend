@@ -19,8 +19,10 @@
     "import/extensions": [".js", ".ts"]
   },
   "rules": {
-    "no-unused-vars": ["error", { "argsIgnorePattern": "next" }],
+    "no-unused-vars": ["error", { "argsIgnorePattern": "next|email|password" }],
     "import/prefer-default-export": "off",
+    "no-underscore-dangle": ["error", { "allow": ["_id"] }],
+    "no-useless-escape": "off",
     "import/extensions": [
       "error",
       "ignorePackages",

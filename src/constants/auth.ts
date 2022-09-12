@@ -1,0 +1,5 @@
+const PASSWORD_HASH_ROUNDS_NUMBER = 10;
+const SECRET_KEY = 'some-secret-key';
+const JWT_EXPIRES_IN = '7d';
+
+export { PASSWORD_HASH_ROUNDS_NUMBER, SECRET_KEY, JWT_EXPIRES_IN };

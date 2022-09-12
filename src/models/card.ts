@@ -1,8 +1,10 @@
 import { model, Schema } from 'mongoose';
 
+import { URL_REGEXP } from '../constants/regexp';
+
 interface ICard {
-  name: String;
-  link: String;
+  name: string;
+  link: string;
   owner: Schema.Types.ObjectId;
   likes: Schema.Types.ObjectId[];
   createdAt: Date;
@@ -18,6 +20,10 @@ const cardSchema = new Schema<ICard>({
   link: {
     type: String,
     required: [true, 'Обязательное поле.'],
+    validate: {
+      validator: (value: string) => URL_REGEXP.test(value),
+      message: 'Некорректный формат ссылки на фотографию в карточке.',
+    },
   },
   owner: {
     type: Schema.Types.ObjectId,
@@ -33,7 +39,7 @@ const cardSchema = new Schema<ICard>({
   ],
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: Date.now,
   },
 });
 

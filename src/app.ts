@@ -2,30 +2,39 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { errors } from 'celebrate';
 
+import { PORT, DATABASE_URL } from './constants/server';
+import { requestLogger, errorLogger } from './middlewares/logger';
+
+import auth from './middlewares/auth';
+import errorsHandler from './middlewares/errorsHandler';
+
+import { login, register } from './controllers/auth';
+import {
+  loginValidateRequest,
+  registerValidateRequest,
+} from './validators/auth';
+
 import userRouter from './routes/users';
 import cardRouter from './routes/cards';
-import errorsHandler from './middleware/errorsHandler';
-
-const PORT = 3000;
-const DATABASE_URL = 'mongodb://localhost:27017/mestodb';
 
 const app = express();
+
+mongoose.connect(DATABASE_URL);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-mongoose.connect(DATABASE_URL);
+app.use(requestLogger);
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '631a5d90c1f5220b1db109ca',
-  };
+app.post('/signup', registerValidateRequest, register);
+app.post('/signin', loginValidateRequest, login);
 
-  next();
-});
+app.use(auth);
 
 app.use('/users', userRouter);
 app.use('/cards', cardRouter);
+
+app.use(errorLogger);
 
 app.use(errors());
 app.use(errorsHandler);

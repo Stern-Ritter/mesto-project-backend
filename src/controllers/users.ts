@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import { SessionRequest, TUserSession } from '../types';
 import User from '../models/user';
-import NotFoundError from '../errors/not-found-err';
+import NotFoundError from '../errors/not-found-error';
 import { handleSchemaErrors } from './utils';
 
 export const getUsers = (req: Request, res: Response, next: NextFunction) => {
@@ -27,17 +28,33 @@ export const getUserById = (
     .catch((err) => handleSchemaErrors(err, next));
 };
 
-export const createUser = (req: Request, res: Response, next: NextFunction) => {
-  const { name, about, avatar } = req.body;
+export const getCurrentUser = (
+  expressRequest: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const req = expressRequest as SessionRequest;
+  const { _id } = req.user as TUserSession;
 
-  User.create({ name, about, avatar })
-    .then((user) => res.send({ data: user }))
+  User.findById(_id)
+    .then((user) => {
+      if (user) {
+        res.send({ data: user });
+      } else {
+        throw new NotFoundError('Пользователь по указанному _id не найден.');
+      }
+    })
     .catch((err) => handleSchemaErrors(err, next));
 };
 
-export const updateUser = (req: Request, res: Response, next: NextFunction) => {
+export const updateUser = (
+  expressRequest: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const req = expressRequest as SessionRequest;
+  const { _id } = req.user as TUserSession;
   const { name, about } = req.body;
-  const { _id } = req.user;
 
   User.findByIdAndUpdate(
     _id,
@@ -55,12 +72,13 @@ export const updateUser = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const updateUserAvatar = (
-  req: Request,
+  expressRequest: Request,
   res: Response,
   next: NextFunction,
 ) => {
+  const req = expressRequest as SessionRequest;
+  const { _id } = req.user as TUserSession;
   const { avatar } = req.body;
-  const { _id } = req.user;
 
   User.findByIdAndUpdate(_id, { avatar }, { new: true, runValidators: true })
     .then((user) => {

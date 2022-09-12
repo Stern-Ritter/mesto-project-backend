@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
+import { SessionRequest, TUserSession } from '../types';
 import Card from '../models/card';
-import NotFoundError from '../errors/not-found-err';
+import NotFoundError from '../errors/not-found-error';
+import ForbiddenError from '../errors/forbidden-error';
 import { handleSchemaErrors } from './utils';
 
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
@@ -10,9 +12,14 @@ export const getCards = (req: Request, res: Response, next: NextFunction) => {
     .catch(next);
 };
 
-export const createCard = (req: Request, res: Response, next: NextFunction) => {
+export const createCard = (
+  expressRequest: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const req = expressRequest as SessionRequest;
+  const { _id } = req.user as TUserSession;
   const { name, link } = req.body;
-  const { _id } = req.user;
 
   Card.create({ name, link, owner: _id })
     .then((card) => card.populate('owner'))
@@ -21,27 +28,41 @@ export const createCard = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const deleteCardById = (
-  req: Request,
+  expressRequest: Request,
   res: Response,
   next: NextFunction,
 ) => {
+  const req = expressRequest as SessionRequest;
+  const { _id } = req.user as TUserSession;
   const { cardId } = req.params;
 
-  Card.findByIdAndRemove(cardId)
-    .populate('owner')
+  Card.findById(cardId)
     .then((card) => {
-      if (card) {
-        res.send({ data: card });
-      } else {
+      if (!card) {
         throw new NotFoundError('Карточка с указанным _id не найдена.');
+      } else if (card.owner.valueOf() === _id) {
+        Card.findByIdAndRemove(cardId)
+          .populate('owner')
+          .then((deletedCard) => {
+            res.send({ data: deletedCard });
+          });
+      } else {
+        throw new ForbiddenError(
+          'Невозможно удалить карточку другого пользователя.',
+        );
       }
     })
     .catch((err) => handleSchemaErrors(err, next));
 };
 
-export const likeCard = (req: Request, res: Response, next: NextFunction) => {
+export const likeCard = (
+  expressRequest: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  const req = expressRequest as SessionRequest;
+  const { _id } = req.user as TUserSession;
   const { cardId } = req.params;
-  const { _id } = req.user;
 
   Card.findByIdAndUpdate(
     cardId,
@@ -60,12 +81,13 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const dislikeCard = (
-  req: Request,
+  expressRequest: Request,
   res: Response,
   next: NextFunction,
 ) => {
+  const req = expressRequest as SessionRequest;
+  const { _id } = req.user as TUserSession;
   const { cardId } = req.params;
-  const { _id } = req.user;
 
   Card.findByIdAndUpdate(
     cardId,
