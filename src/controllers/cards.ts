@@ -45,7 +45,8 @@ export const deleteCardById = (
           .populate('owner')
           .then((deletedCard) => {
             res.send({ data: deletedCard });
-          });
+          })
+          .catch((err) => handleSchemaErrors(err, next));
       } else {
         throw new ForbiddenError(
           'Невозможно удалить карточку другого пользователя.',
